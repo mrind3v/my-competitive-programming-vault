@@ -34,17 +34,20 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
-int gcd(int a, int b) {
-    if (a==0 || b==0) return a+b;
-    else {
-        return (b,a%b);
+
+int fibo(int n, unordered_map<int,int> &mp) {
+    if (mp.find(n)!=mp.end()) {
+        return mp[n];
     }
+    if (n==1 || n==2) return 1;
+    mp[n] = fibo(n-1,mp)+fibo(n-2,mp);
+    return mp[n];
 }
 
 void solve() {
-    int n; cin>>n;
-    cout<<n/2<<endl;
-
+    unordered_map<int, int> mp = {};
+    int result = fibo(50,mp);
+    cout<<result;
 }
 
 signed main()

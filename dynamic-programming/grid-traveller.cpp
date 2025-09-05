@@ -34,17 +34,25 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
-int gcd(int a, int b) {
-    if (a==0 || b==0) return a+b;
-    else {
-        return (b,a%b);
+// Q. Count the number of times you can travel from top left to the bottom right corner if you 
+// can only move down or right at a time 
+
+int grid_traveller(int n, int m, unordered_map<string,int> &mp) {
+    string key = to_string(n)+","+to_string(m);
+    if (mp.find(key)!=mp.end()) {
+        return mp[key];
     }
+    if (n==0 || m==0) return 0;
+    if (n==1 && m==1) return 1;
+
+    mp[key] = grid_traveller(n-1,m,mp) + grid_traveller(n,m-1,mp);
+    return mp[key];
 }
 
 void solve() {
-    int n; cin>>n;
-    cout<<n/2<<endl;
-
+    unordered_map<string,int> mp = {};
+    int result =  grid_traveller(18,18,mp);
+    cout<<result;
 }
 
 signed main()
