@@ -11,4 +11,11 @@
 
 ---
 
-## Level 3   
+## Level 3 and 4
+
+- a simple cycle is a cycle where no edge repeats
+- a simple graph is where there can't be any self-loop or edge repetation (meaning, at most one edge between any two vertices)
+- multigraph is the exact opposite - both self-loops and multiple edges allowed 
+- node y is reachable from x if there is a path between x and y
+- if graph has n components (not connected), to make all the componenets connected, we need to add n-1 edges between the components
+- strongly connected component is the one where for each node x,y R(x,y) => R(y,x) where R(x,y) means x is reachable from y
