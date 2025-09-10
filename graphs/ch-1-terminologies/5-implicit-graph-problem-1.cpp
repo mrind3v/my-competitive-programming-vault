@@ -124,8 +124,8 @@ void solve() {
         // for each row, we make the grid contain m columns - now the columns will be uninitialised characters
         // before - [[],...,[]]; after - [[.,...,.], [.,...,.],...,[.,...,.]] (n rows with m columns)
         grid[i].resize(m);
-        for (int j=0; j<n; j++){
-            cin>>grid[i];
+        for (int j=0; j<m; j++){
+            cin>>grid[i][j];
             if (grid[i][j]=='S'){
                 st = {i,j};
             }
@@ -134,6 +134,7 @@ void solve() {
             }
         }
     }
+
 
     // 5. next, we will do a bfs from starting to the ending state
     bfs(st); // will find the distance to each point in grid
