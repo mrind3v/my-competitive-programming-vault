@@ -93,7 +93,7 @@ v<state> neighbours(state node) {
 // 7. bfs function
 void bfs(state stNode) {
     dist.assign(n, vi(m,0));
-    visited.assign(n,vi(m,0));
+    visited.assign(n,vi(m,1000));
 
     queue<state> q;
     visited[stNode.ff][stNode.ss] = 1;
