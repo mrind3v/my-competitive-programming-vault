@@ -28,9 +28,11 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 #define pb              push_back
 #define bit(num, i)     (num & (1ll << i))
 #define no cout<<"NO"<<"\n"
-#define space " "
+#define space " " 
 #define ovi optional<vi>
 #define yes cout<<"YES"<<"\n"
+
+const int INF = 100; // let 100 be infinity for us - so when we print dist array, it wont be cluttery  
 
 using state = pair<int, int>;
 const bool multipleTestCases = true;
@@ -57,11 +59,17 @@ F . . . . .
 int n,m;
 v<v<char>> grid;
 vvi dist;
-vvi visited;
+// par array to store parents of each node
+v<v<state>> par;
+
+// we can do an optimization here by removing the visited array altogether, we can just use the dist array
+// to check if a node is visited or not so we do not visit it again. It is because dist and visited arrays
+// are very similar - when visited = 0, dist = INF
+//vvi visited;
 
 // 3. creating some macros and an alias for type pair<int,int> (can also use macro)
-// we already have it - using pii = pair<int,int> and also #define ff first and #define ff second
-// but we shale replace pii as state - because state will represent our current configuration/node we are currently
+// we already have it - using pii = pair<int,int> and also #define ff first and #define ss second
+// but we shall replace pii as state - because state will represent our current configuration/node we are currently
 // in
 
 
@@ -90,13 +98,15 @@ v<state> neighbours(state node) {
     return neighs;
 }
 
-// 7. bfs function
-void bfs(state stNode) {
-    dist.assign(n, vi(m,0));
-    visited.assign(n,vi(m,1000));
-
+// 7. bfs 
+void bfs(state stNode) { // stNode - starting node
+    dist.assign(n, vi(m,INF)); // for an unreachable node, distance would be 10^9 or infinity
+    // removing visited array as dist array also does the job
+    //visited.assign(n,vi(m,0));
+    par.assign(n,v<state>(m,{-1,-1})); // parent of starting node is {-1,-1}
+ 
     queue<state> q;
-    visited[stNode.ff][stNode.ss] = 1;
+    //visited[stNode.ff][stNode.ss] = 1;
     dist[stNode.ff][stNode.ss] = 0;
     q.push(stNode);
 
@@ -104,9 +114,10 @@ void bfs(state stNode) {
         state node = q.front();
         q.pop();
         for (auto child : neighbours(node)) {
-            if (!visited[child.ff][child.ss]){
-                visited[child.ff][child.ss]=1;
+            if (dist[child.ff][child.ss]==INF){
+                //visited[child.ff][child.ss]=1;
                 dist[child.ff][child.ss]=dist[node.ff][node.ss]+1;
+                par[child.ff][child.ss] = node;
                 q.push(child);
             }
         }
@@ -139,13 +150,38 @@ void solve() {
     // 5. next, we will do a bfs from starting to the ending state
     bfs(st); // will find the distance to each point in grid
 
+    // print the distance matrix - to see the distance all nodes from starting node 
+    for (int i=0; i<n; i++){
+        for (int j=0; j<m; j++){
+            cout<<dist[i][j]<<space;
+        }
+        cout<<endl;
+    }
+
+
     // 6. finally, we shall just print the shortest distance to final state with indices {en.ff,en.ss}
     // edge case - final state is not reachable!
-    if (!visited[en.ff][en.ss]){
+    if (dist[en.ff][en.ss]==INF){
         cout<<"Final state is not reachable!"<<endl;
     } else {
         cout<<dist[en.ff][en.ss]<<endl;
+
+        // will print the path from starting to ending node 
+        v<state> path; 
+        
+        state curr = en;
+        while (curr != state{-1,-1}){
+            path.pb(curr);
+            curr = par[curr.ff][curr.ss];
+        }
+        reva(path); 
+
+        for (auto v : path){
+            cout<<v.ff<<space<<v.ss<<endl;
+        }
     }
+
+
 }
 
 signed main()
@@ -159,3 +195,8 @@ signed main()
         solve();
     }
 }
+
+
+// obvious followup Q - give the path from st to ending node (the shortest one) and not just the distance
+// next follow up - shortest path from st to en given you can destroy k walls 
+// next follow up - number of shortest path from st to en 
