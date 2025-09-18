@@ -35,115 +35,88 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
-vi vis;
+/*
+Idea:
+
+initilly color[all nodes]=1 
+
+dfs(starting_node):
+    color[starting_node]=2
+    for (for all x which is a neighbour node of starting_node):
+        if color[x]==2:
+            dfs(x)
+    // after visiting starting_node and all its neighbours
+    dfs[starting_node]=3
+
+
+                forward edge
+node1 (color=2) -----------> node2 (color=1) - exploring the neighbour of node1 for the first time - will be
+                                               visited by dfs
+
+                back edge
+node1 (color=2) -----------> node2 (color=2) - we do have a cycle - not visited by dfs
+There lookout for back edges in the graph!
+
+                cross edge
+node1 (color=2) -----------> node2 (color=3) - looks like a cycle, but no! - not visited by dfs
+*/
+
 vvi g;
-v<v<pii>> g_weighted; 
-int n,m;
-const int INF = 1e9;
+vi color;
+bool isCycle = 0;
+vi parent;
+vi anyCycle;
+void dfsDetectCycle(int node, int par){
+    color[node]=1;
+    parent[node]=par; // this will store the parent of each node
+    for (auto neigh : g[node]){
+        if (color[neigh]==1) {
+            // forward edge - call dfs
 
-void bfs(int node) {
-    queue<int> q;
-    vis.assign(n+1,0);
-    vis[node] = 1;
-    q.push(node);
-
-    while (!q.empty()) {
-        int node = q.front();
-        q.pop();
-        for (auto it : g[node]){
-            if (!vis[it]){
-                vis[it]=1;
-                q.push(it);
-            }
+            // passing the parent of a neighbour, which would be assigned later in the recursive call
+            dfsDetectCycle(neigh, node); 
         }
-    }
-}
-
-vi dijkstra(int node) {
-    priority_queue<pii> pq; 
-    vi dist(n+1,INF);
-    vis.assign(n+1,0);      
-    dist[node] = 0;
-    pq.push({0,node});
-    while (!pq.empty()) {
-        auto [node,d] = pq.top();
-        pq.pop();
-        if (vis[node]) continue;
-        vis[node] = 1;
-        for (auto it : g_weighted[node]){
-            auto [child,wt] = it;
-            if (dist[child] > dist[node] + wt){ 
-                dist[child] = dist[node] + wt;
-                pq.push({child,-dist[child]});
-            }
-        }
-    }
-    return dist;
-}
-
-vi bellmman_fordk(int src) {
-    queue<pii> q; 
-    vis.assign(n+1,0);
-    vi dist(n+1,INF);
-    dist[src]=0;
-    q.push({src,0});
-    while (true) {
-        while (!q.empty()){
-            auto [node, d] = q.front();
-            q.pop();
-            if (vis[node]) continue; 
-            vis[node]=1;
-            for (auto it : g_weighted[node]){
-                auto [child,wt] = it; 
-                if (dist[child]>dist[src]+wt){
-                    dist[child]=dist[src]+wt;
-                    q.push({child,wt});
+        else if (color[neigh]==2) {
+            // back edge (temp -> neigh) - a cycle!
+            
+            // storing the cycle path logic 
+            if (isCycle==0){ // the first time we see a cycle - since we output the first cycle we see!
+                int temp = node;
+                while (temp!=neigh){ 
+                    // push the node (the neigh of which forms a back edge) 
+                    anyCycle.pb(temp);
+                    // keep going to parent
+                    temp = parent[temp]
                 }
+                anyCycle.pb(temp); // storing neigh as well once reached
             }
+            isCycle=1;
         }
-    }
-}
-
-void bellman_ford(int src) {
-    vi dist(n+1,INF);
-    dist[src] = 0;
-    for (int i=1; i<=n-1; i++){
-        for (int u=1; u<=n; u++){
-            for (auto it : g_weighted[u]){
-                auto [v,wt] = it;
-                if (dist[u] != INF and dist[v] > dist[u] + wt){
-                    dist[v] = dist[u] + wt;
-                }
-            }
-        }
-    }
-    // to check for negative weight cycle
-    for (int u=1; u<=n; u++){
-        for (auto it : g_weighted[u]){
-            auto [v,wt] = it;
-            if (dist[u] != INF and dist[v] > dist[u] + wt){
-                cout<<"Negative weight cycle exists\n";
-                return;
-            }
+        else if (color[neigh]==3) {
+            // cross edge - do nothing!
         }
     }
 }
 
 void solve() {
-    cin>>n>>m;
+    int n,m; cin>>n>>m;
     g.resize(n+1);
+    color.assign(n+1,1);
     for (int i=0; i<m; i++){
-        int a,b; cin>>a>>b; 
-        g[b].pb(a);
+        int a,b; cin>>a>>b;
+        // we are inputting directed graph
         g[a].pb(b);
     }
-    // inputting g_weighted
-    for (int i=0; i<m; i++){
-         int a,b,w; cin>>a>>b>>w; 
-         g_weighted[b].pb({a,w});
-         g_weighted[a].pb({b,w});
-    }        
 
+    // we shall run dfs for each node. We cannot directly start dfs from a random node as the graph may
+    // not be fully connected, so we might not explore a cycle even if there is if we start dfs from a node
+    // which belongs to a component that doesn't have a cycle
+    for (int i=1; i<=n; i++){
+        // if not visited - meaning color=1
+        if (color[i]==1){
+            dfsDetectCycle(i,0); // let parent of node 1 be 0
+        }
+    }
 }
 
 signed main()
