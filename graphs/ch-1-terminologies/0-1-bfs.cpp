@@ -35,57 +35,18 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
-// global variables
-vvi g; // adjacency list
-// visited array for bfs
-vi visited;
-// distance array for bfs
-vi dist;
+// 0/1 BFS is a very smart algorithm - important to have respect for it 
+// 0/1 BFS - some edges can have 0 weight and others have 1 as edge weight. 0 weight means, free travel!
 
+// idea 1 - two nodes connected by zero nodes is almost like a short ckt - meaning 1 node instead of 2
+// but coding this can be difficult 
 
-// 2. vanilla bfs algo with the ability to find single source shortest path
-void bfs(int scNode) { // scNode - source node
-    queue<int> q;
-
-    visited[scNode]=1;
-    dist[scNode]=0; // distance from source node to itself is 0
-    q.push(scNode);
-
-    while (!q.empty()) {
-        int node = q.front();
-        q.pop();
-        for (auto child : g[node]) {
-            if (!visited[child]){
-                visited[child]=1;
-                dist[child]=dist[node]+1;
-                q.push(child);
-            }
-        }
-    }
-}
+// idea 2 - at any point of time, we have two levels in the queue. Say there are q1,q2 in level 1. Now,
+// when processing q1, will put its child in queue (say child q1). So queue now looks like q2, child_q1. But,
+// if the weight of edge connecting q1 and child_q1 was 0, then will not consider child_q1 to be in level 2 but
+// level 1 only. So will use a deque to make sure the queue looks like child_q1,q2
 
 void solve() {
-    // 1. inputting adjacency list
-    int n,m; cin>>n>>m;
-    g.resize(n+1);
-    for (int i=0; i<m; i++){
-        int a,b; cin>>a>>b; 
-        g[a].pb(b);
-        // for undirected graph
-        g[b].pb(a);
-    }
-
-    // 3. assigning global arrays
-    visited.assign(n+1,0); // size,all ele value
-    dist.assign(n+1,1e9); // if some node is not reachable, the ele value won't be modified and stay 1e9
-
-    // 4. performing bfs
-    bfs(1);
-
-    // 5. printing every nodes with their distances from the source node
-    for (int i=1; i<=n; i++){
-        cout<<"node: "<<i<<" and "<<"distance from source: "<<dist[i]<<endl;
-    }
 
 }
 
@@ -100,5 +61,3 @@ signed main()
         solve();
     }
 }
-
-

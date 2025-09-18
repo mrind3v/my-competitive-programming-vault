@@ -35,57 +35,90 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
-// global variables
-vvi g; // adjacency list
-// visited array for bfs
-vi visited;
-// distance array for bfs
-vi dist;
+vi vis;
+vvi g;
+v<v<pii>> g_weighted; 
+int n,m;
+const int INF = 1e9;
 
-
-// 2. vanilla bfs algo with the ability to find single source shortest path
-void bfs(int scNode) { // scNode - source node
+void bfs(int node) {
     queue<int> q;
-
-    visited[scNode]=1;
-    dist[scNode]=0; // distance from source node to itself is 0
-    q.push(scNode);
+    vis.assign(n+1,0);
+    vis[node] = 1;
+    q.push(node);
 
     while (!q.empty()) {
         int node = q.front();
         q.pop();
-        for (auto child : g[node]) {
-            if (!visited[child]){
-                visited[child]=1;
-                dist[child]=dist[node]+1;
-                q.push(child);
+        for (auto it : g[node]){
+            if (!vis[it]){
+                q.push(it);
+            }
+        }
+    }
+}
+
+vi dijkstra(int node) {
+    priority_queue<pii> pq; 
+    vi dist(n+1,INF);
+    vis.assign(n+1,0);      
+    dist[node] = 0;
+    pq.push({0,node});
+    while (!pq.empty()) {
+        auto [d,node] = pq.top();
+        pq.pop();
+        if (vis[node]) continue;
+        vis[node] = 1;
+        for (auto it : g_weighted[node]){
+            auto [child,wt] = it;
+            if (dist[child] > dist[node] + wt){ 
+                dist[child] = dist[node] + wt;
+                pq.push({child,-dist[child]});
+            }
+        }
+    }
+    return dist;
+}
+
+void bellman_ford(int src) {
+    vi dist(n+1,INF);
+    dist[src] = 0;
+    for (int i=1; i<=n-1; i++){
+        for (int u=1; u<=n; u++){
+            for (auto it : g_weighted[u]){
+                auto [v,wt] = it;
+                if (dist[u] != INF and dist[v] > dist[u] + wt){
+                    dist[v] = dist[u] + wt;
+                }
+            }
+        }
+    }
+    // to check for negative weight cycle
+    for (int u=1; u<=n; u++){
+        for (auto it : g_weighted[u]){
+            auto [v,wt] = it;
+            if (dist[u] != INF and dist[v] > dist[u] + wt){
+                cout<<"Negative weight cycle exists\n";
+                return;
             }
         }
     }
 }
 
 void solve() {
-    // 1. inputting adjacency list
-    int n,m; cin>>n>>m;
+    cin>>n>>m;
     g.resize(n+1);
     for (int i=0; i<m; i++){
         int a,b; cin>>a>>b; 
-        g[a].pb(b);
-        // for undirected graph
         g[b].pb(a);
+        g[a].pb(b);
     }
-
-    // 3. assigning global arrays
-    visited.assign(n+1,0); // size,all ele value
-    dist.assign(n+1,1e9); // if some node is not reachable, the ele value won't be modified and stay 1e9
-
-    // 4. performing bfs
-    bfs(1);
-
-    // 5. printing every nodes with their distances from the source node
-    for (int i=1; i<=n; i++){
-        cout<<"node: "<<i<<" and "<<"distance from source: "<<dist[i]<<endl;
-    }
+    // inputting g_weighted
+    for (int i=0; i<m; i++){
+         int a,b,w; cin>>a>>b>>w; 
+         g_weighted[b].pb({a,w});
+         g_weighted[a].pb({b,w});
+    }        
 
 }
 
@@ -100,5 +133,3 @@ signed main()
         solve();
     }
 }
-
-
