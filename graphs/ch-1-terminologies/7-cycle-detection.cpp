@@ -66,10 +66,13 @@ vi color;
 bool isCycle = 0;
 vi parent;
 vi anyCycle;
+vi cntCycle; // for each node - how much cycles is it a part of?
+vi prefixOrder;
 void dfsDetectCycle(int node, int par){
     color[node]=1;
     parent[node]=par; // this will store the parent of each node
     for (auto neigh : g[node]){
+        // if (neigh == parent[neigh]) continue; // for undirected graph
         if (color[neigh]==1) {
             // forward edge - call dfs
 
@@ -86,22 +89,35 @@ void dfsDetectCycle(int node, int par){
                     // push the node (the neigh of which forms a back edge) 
                     anyCycle.pb(temp);
                     // keep going to parent
-                    temp = parent[temp]
+                    temp = parent[temp];
                 }
                 anyCycle.pb(temp); // storing neigh as well once reached
             }
+            // we found a back-edge from node. So it's part of some cycle. Therefore,
+            cntCycle[node]++;
+            // and also assign cntCycle of parent of neigh (to which back-edge is going) as --
+            cntCycle[parent[neigh]]--; // so that neigh is included in partial sum and not its parent
             isCycle=1;
         }
         else if (color[neigh]==3) {
             // cross edge - do nothing!
+            // in undirected graph - we will never encounter cross edges. Because if a node is visited
+            // along with all its neighs (so color=3) then it's neigh (who would be color=2 if it were an
+            // directed graph) would have already been visited as a neighbour in this case
         }
     }
+    color[node]=3;
+    // prefix order array helps propagate values upwards to eventually make parent of neigh 0
+    // it maintains the order from the node where the back edge occurs to where it ends!
+    prefixOrder.pb(node); // store node number
 }
 
 void solve() {
     int n,m; cin>>n>>m;
     g.resize(n+1);
     color.assign(n+1,1);
+    parent.assign(n+1,0);
+    cntCycle.assign(n+1,0); // initially, no node is part of any cycle! - So 0 for all
     for (int i=0; i<m; i++){
         int a,b; cin>>a>>b;
         // we are inputting directed graph
@@ -117,6 +133,21 @@ void solve() {
             dfsDetectCycle(i,0); // let parent of node 1 be 0
         }
     }
+    reva(anyCycle);
+    for (auto v : anyCycle){
+        cout<<v<<" ";
+    }
+    for (auto v : prefixOrder) {
+        cntCycle[parent[v]]+=cntCycle[v]; // just like prefixSum(i)+=prefixSum(i-1) 
+    }
+    // after everything, all nodes that are part of some cycle would be numbered >0
+    int nodesPartOfCycle;
+    for (int i=1; i<=n; i++){
+        if (cntCycle[i]>0) {
+            nodesPartOfCycle++;
+        }
+    }
+    cout<<nodesPartOfCycle;
 }
 
 signed main()
@@ -130,3 +161,5 @@ signed main()
         solve();
     }
 }
+
+// HW - do the last half of DFS cycle detection lecture - involves prefix sums
