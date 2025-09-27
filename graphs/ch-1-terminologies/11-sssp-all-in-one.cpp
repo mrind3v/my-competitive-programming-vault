@@ -29,21 +29,65 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 #define bit(num, i)     (num & (1ll << i))
 #define no cout<<"NO"<<"\n"
 #define space " "
+#define ovi optional<vi>
 #define yes cout<<"YES"<<"\n"
 
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
-int gcd(int a, int b) {
-    if (a==0 || b==0) return a+b;
-    else {
-        return (b,a%b);
+vi vis;
+vi dist;
+v<v<pii>> g;
+int n,m;
+const int INF = 1e9;
+
+// bfs only - but covers 0-1 bfs as well - overall an SSSP algo
+void sssp(int node) { // if its weighted graph, handle it accordingly. But main code stays the same
+    deque<int> q; // we shall use priority_queue instead for Dijkstra
+    q.push_back(node);
+    while (!q.empty()) {
+        int node = q.front();
+        q.pop_front();
+
+        // piece of code, not written in bfs - but must write in other forms!
+        // has it already been explored by its shortest way to reach it? then move on, do nothing 
+        if (vis[node]) continue;
+        // otherwise, we shall process it
+        vis[node]=1;
+
+        for (auto neigh : g[node]){
+            int neighNode = neigh.ff;
+            int weight = neigh.ss;
+            if (dist[neighNode]>dist[node]+weight){
+                dist[neighNode] = dist[node]+weight;
+                // 0-1 bfs logic
+                if (weight==0) {
+                    q.push_front(neighNode);
+                }
+                else {
+                    q.push_back(neighNode);
+                }
+                
+            }
+        }
+
     }
 }
 
 void solve() {
-    int n; cin>>n;
-    cout<<n/2<<endl;
+    cin>>n>>m;
+    g.resize(n+1);
+    vis.assign(n+1,0);
+    dist.assign(n+1,INF);
+    for (int i=0; i<m; i++){
+        int a,b,c; cin>>a>>b>>c;
+        g[a].pb({b,c});
+        g[b].pb({a,c});
+    }
+    int sc; // inputting source node
+    cin>>sc;
+    dist[sc]=0;
+    sssp(sc);
 
 }
 

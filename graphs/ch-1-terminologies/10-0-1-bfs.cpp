@@ -28,24 +28,56 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 #define pb              push_back
 #define bit(num, i)     (num & (1ll << i))
 #define no cout<<"NO"<<"\n"
+#define space " "
+#define ovi optional<vi>
 #define yes cout<<"YES"<<"\n"
 
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
+v<v<pii>> g;
+vi dist; 
+int n,m;
+const int INF = 1000;
+
+// FOLLOW THE 11TH NOTE - THIS IS WRONG
+// void bfs(int node){
+//     deque<int> dq; // just push the node value instead of node and weight as pair
+//     dq.push_front(node);
+//     while (!dq.empty()){
+//         int node = dq.front();
+//         dq.pop_front();
+//         for (auto child : g[node]){
+//             int childNode = child.ff;
+//             int weight = child.ss;
+//             if (dist[childNode] > dist[node]+weight){
+//                 dist[childNode] = dist[node]+weight; // relaxing edge
+//             }
+//             if (weight==0) {
+//                 dq.push_front(childNode);
+//             }
+//             else {
+//                 dq.push_back(childNode);
+//             }
+//         }
+//     }
+// }
+
 void solve() {
-    int n; cin>>n;
-    string s; cin>>s;
-    bool lenThree = false; 
-    int cntEmpty = 0;
-    for (int i=0; i<=n-1; i++){
-        if (i<n && s[i]=='.' && s[i]==s[i+1] && s[i]==s[i+2]){
-            cout<<2<<endl;
-            return;
-        }
-        else if (s[i]=='.') cntEmpty++;
+    cin>>n>>m;
+    g.resize(n+1);
+    dist.assign(n+1,INF);
+    for (int i=0; i<m; i++){
+        int a,b,c; cin>>a>>b>>c; // c can only take 0 and 1 as values
+        g[a].pb({b,c});
+        g[b].pb({a,c}); 
     }
-    cout<<cntEmpty<<endl;
+
+    int sc;
+    cin>>sc; // source node;
+    // make dist of source node as 0
+    dist[sc]=0;
+    bfs(sc);
 }
 
 signed main()

@@ -28,22 +28,14 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 #define pb              push_back
 #define bit(num, i)     (num & (1ll << i))
 #define no cout<<"NO"<<"\n"
+#define space " "
+#define ovi optional<vi>
 #define yes cout<<"YES"<<"\n"
 
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
 void solve() {
-    int n,k; cin>>n>>k;
-    vi arr;
-    for (int i=0; i<n; i++){
-        int x; cin>>x;
-        arr.pb(x);
-    }
-    vi copyArr = arr; 
-    sorta(copyArr);
-    if (copyArr == arr || k>1) yes; 
-    else no;
 
 }
 

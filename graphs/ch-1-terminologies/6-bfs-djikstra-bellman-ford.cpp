@@ -107,8 +107,8 @@ vi bellmman_fordk(int src) {
 void bellman_ford(int src) {
     vi dist(n+1,INF);
     dist[src] = 0;
-    for (int i=1; i<=n-1; i++){
-        for (int u=1; u<=n; u++){
+    for (int i=1; i<=n-1; i++){ // V-1 iterations
+        for (int u=1; u<=n; u++){ // go through each node
             for (auto it : g_weighted[u]){
                 auto [v,wt] = it;
                 if (dist[u] != INF and dist[v] > dist[u] + wt){
