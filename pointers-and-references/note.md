@@ -58,6 +58,7 @@ var,ref
 ------
 | 10 |
 ------
+ 0xA
 ```
 Now if an int ptr stores the memory address of var and then we try to de-ref ptr, we get the same output for var and ref
 ```cpp

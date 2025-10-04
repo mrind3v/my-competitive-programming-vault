@@ -81,29 +81,18 @@ vi dijkstra(int node) {
     return dist;
 }
 
-vi bellmman_fordk(int src) {
-    queue<pii> q; 
-    vis.assign(n+1,0);
-    vi dist(n+1,INF);
-    dist[src]=0;
-    q.push({src,0});
-    while (true) {
-        while (!q.empty()){
-            auto [node, d] = q.front();
-            q.pop();
-            if (vis[node]) continue; 
-            vis[node]=1;
-            for (auto it : g_weighted[node]){
-                auto [child,wt] = it; 
-                if (dist[child]>dist[src]+wt){
-                    dist[child]=dist[src]+wt;
-                    q.push({child,wt});
-                }
-            }
-        }
-    }
-}
 
+/*
+bellman ford algo relaxes 1 edge in 1st iteration, 2 edges in 2nd iteration --> to V-1 edges in the V-1th itern
+And since there can only be at max V-1 edges (V - number of vertices in graph) --> we will be able to relax all
+edges to find the shortest path even with negative edges.
+
+But the vanilla algo of bellman ford still fails for the presence of negative cycle (but will work in positive
+cycle - as we won't visit already visited nodes in cycle due to increasing weight - distance) because in a neg
+cycle - the distance/weight keep reducing - we will keep getting shorter distances! Therefore, any node that
+is reachable from -ve cycle -> we won't get a true shortest distance from them -> because all of em will have
+edge weights as -infinity
+*/
 void bellman_ford(int src) {
     vi dist(n+1,INF);
     dist[src] = 0;
@@ -117,7 +106,12 @@ void bellman_ford(int src) {
             }
         }
     }
-    // to check for negative weight cycle
+    /*
+    How check for negative weight cycle? After running the bellman ford algo V-1 times if i run the algo and we
+    find that one of the edges is being relaxed -> we got a cycle! Because the algo says thatwe need at max V-1
+    iterations to relax all edges. But if i find any edge being relaxed even after running the algo V-1 times, it
+    can only happen in the case of -ve cycle!
+    */ 
     for (int u=1; u<=n; u++){
         for (auto it : g_weighted[u]){
             auto [v,wt] = it;

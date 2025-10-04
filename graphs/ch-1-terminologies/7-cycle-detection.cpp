@@ -69,7 +69,7 @@ vi anyCycle;
 vi cntCycle; // for each node - how much cycles is it a part of?
 vi prefixOrder;
 void dfsDetectCycle(int node, int par){
-    color[node]=1;
+    color[node]=2;
     parent[node]=par; // this will store the parent of each node
     for (auto neigh : g[node]){
         // if (neigh == parent[neigh]) continue; // for undirected graph
