@@ -35,108 +35,98 @@ template <typename T> std::ostream &operator<<(std::ostream &stream, const vecto
 using pii = pair<int, int>;
 const bool multipleTestCases = true;
 
-vi vis;
-vvi g;
-v<v<pii>> g_weighted; 
-int n,m;
-const int INF = 1e9;
 
-void bfs(int node) {
-    queue<int> q;
-    vis.assign(n+1,0);
-    vis[node] = 1;
-    q.push(node);
+// Time complexity for all the problems below:
+// Since we are visiting all nodes exactly nodes. Assuming, we have n nodes in the tree. 
+// Time complexity: O(n)
+// And space complexity: O(h) where h is the height of the tree (balanced) or O(log(n))  
+// For skewed tree, space complexity: O(n)
 
-    while (!q.empty()) {
-        int node = q.front();
-        q.pop();
-        for (auto it : g[node]){
-            if (!vis[it]){
-                vis[it]=1;
-                q.push(it);
-            }
-        }
-    }
+struct Node {
+    int val;
+    Node *left, *right;
 }
 
-vi dijkstra(int node) {
-    priority_queue<pii> pq; 
-    vi dist(n+1,INF);
-    vis.assign(n+1,0);      
-    dist[node] = 0;
-    pq.push({0,node});
-    while (!pq.empty()) {
-        auto [node,d] = pq.top();
-        pq.pop();
-        if (vis[node]) continue;
-        vis[node] = 1;
-        for (auto it : g_weighted[node]){
-            auto [child,wt] = it;
-            if (dist[child] > dist[node] + wt){ 
-                dist[child] = dist[node] + wt;
-                pq.push({-dist[child], child});
-            }
-        }
-    }
-    return dist;
+int cntNodes(Node *root){
+    if (root == NULL) return 0; 
+    int leftCnt = cntNodes(root->left); 
+    int rightCnt = cntNodes(root->right); 
+    return leftCnt + rightCnt + 1;
+}
+
+bool isMirror(Node n1, Node n2) {
+    // we did a pre-order traversal here. We failed fast! - checked if root nodes are equal or not first 
+    // that saved us from lot of computation in case trees are not mirrors because root nodes are diff 
+    // However, in post order traversal, we still need to do a lot of computation because root nodes will
+    // be checked at last
+    // base case 
+    if (n1 == NULL and n2 == NULL) return true;
+    if (n1 == NULL or n2 == NULL) return false;
+    // recursive code 
+   if (n1.val != n2.val) return false;
+   return isMirror(n1.left, n2.right) and isMirror(n1.right, n2.left);
 }
 
 
-/*
-bellman ford algo relaxes 1 edge in 1st iteration, 2 edges in 2nd iteration --> to V-1 edges in the V-1th itern
-And since there can only be at max V-1 edges (V - number of vertices in graph) --> we will be able to relax all
-edges to find the shortest path even with negative edges.
+int heightOfBinaryTree(Node *root){
+    // calculating height with respect to number of edges 
+    // if (root == NULL) return 0; 
+    // int leftHeight = heightOfBinaryTree(root->left); 
+    // int rightHeight = heightOfBinaryTree(root->right); 
+    // return max(leftHeight, rightHeight) + 1;
 
-But the vanilla algo of bellman ford still fails for the presence of negative cycle (but will work in positive
-cycle - as we won't visit already visited nodes in cycle due to increasing weight - distance) because in a neg
-cycle - the distance/weight keep reducing - we will keep getting shorter distances! Therefore, any node that
-is reachable from -ve cycle -> we won't get a true shortest distance from them -> because all of em will have
-edge weights as -infinity
-*/
-void bellman_ford(int src) {
-    vi dist(n+1,INF);
-    dist[src] = 0;
-    for (int i=1; i<=n-1; i++){ // V-1 iterations
-        for (int u=1; u<=n; u++){ // go through each node
-            for (auto it : g_weighted[u]){
-                auto [v,wt] = it;
-                if (dist[u] != INF and dist[v] > dist[u] + wt){
-                    dist[v] = dist[u] + wt;
-                }
-            }
-        }
-    }
-    /*
-    How check for negative weight cycle? After running the bellman ford algo V-1 times if i run the algo and we
-    find that one of the edges is being relaxed -> we got a cycle! Because the algo says thatwe need at max V-1
-    iterations to relax all edges. But if i find any edge being relaxed even after running the algo V-1 times, it
-    can only happen in the case of -ve cycle!
-    */ 
-    for (int u=1; u<=n; u++){
-        for (auto it : g_weighted[u]){
-            auto [v,wt] = it;
-            if (dist[u] != INF and dist[v] > dist[u] + wt){
-                cout<<"Negative weight cycle exists\n";
-                return;
-            }
-        }
+    // with respect to number of nodes 
+    if (root == NULL) return 0; 
+    int leftHeight = heightOfBinaryTree(root->left); 
+    int rightHeight = heightOfBinaryTree(root->right); 
+    return max(leftHeight, rightHeight)+1;
+}
+
+int diameterOfBinaryTree(Node *root){ // longest path between any two nodes - usually two leaf nodes
+    // in skewed tree, not between leaf nodes but between the root and the leaf node 
+    // here diameter is calculated with respect to number of edges
+    if (root == NULL) return 0; 
+
+    int leftHeight = heightOfBinaryTree(root->left); 
+    int rightHeight = heightOfBinaryTree(root->right); 
+    return leftHeight + rightHeight + 2;
+
+    // but the above code is wrong if root node is not part of diameter
+}
+
+int diameterCorrected(Node *root){
+    if (root == NULL) return -1; 
+    int diamLeft = diameterCorrected(root->left); // using diameterCorrected fn here
+    int diamRight = diameterCorrected(root->right);  
+    int leftHeight = heightOfBinaryTree(root->left); 
+    int rightHeight = heightOfBinaryTree(root->right); // using heighOfBinaryTree fn here
+    return max(diamLeft, diamRight, leftHeight + rightHeight + 2);
+
+    // time complexity - O(n^2) --> not optimal
+}
+
+struct Data {
+    // constructor 
+    int diam;
+    int height;
+    Data(int diam, int height){
+        this->diam = diam;
+        this->height = height;
     }
 }
+
+Data diameterOptimised(Node *root){
+    // will return a class/struct containing both diameter and height
+    if (root == NULL) return Data(-1, 0); 
+    Data leftData = diameterOptimised(root->left); 
+    Data rightData = diameterOptimised(root->right); 
+    return Data(max(leftData.diam, rightData.diam, leftData.height + rightData.height + 2), max(leftData.height, rightData.height) + 1);
+}
+
+// New Q -> You are given traversals of a tree - preorder and inorder traversals. Construct the binary tree 
+// (assume that there are no duplicates in the tree)
 
 void solve() {
-    cin>>n>>m;
-    g.resize(n+1);
-    for (int i=0; i<m; i++){
-        int a,b; cin>>a>>b; 
-        g[b].pb(a);
-        g[a].pb(b);
-    }
-    // inputting g_weighted
-    for (int i=0; i<m; i++){
-         int a,b,w; cin>>a>>b>>w; 
-         g_weighted[b].pb({a,w});
-         g_weighted[a].pb({b,w});
-    }        
 
 }
 
