@@ -73,7 +73,7 @@ cout<<*ptr // output: 10
 
 # Arrow operator
 
-Let's define an integer pointer ptr which stores the memory addr of some object
+Let's define a pointer ptr (of type Class) which stores the memory addr of some object of type Class
 ```cpp
 struct Point {
     int x;
