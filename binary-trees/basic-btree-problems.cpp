@@ -44,7 +44,7 @@ const bool multipleTestCases = true;
 
 struct Node {
     int val;
-    Node *left, *right;
+    Node *left, *right; // left and right are pointers to another Node struct
 }
 
 int cntNodes(Node *root){
