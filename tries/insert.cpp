@@ -35,7 +35,7 @@ struct TrieNode {
     }
 };
 
-TrieNode* insertNode(TrieNode* root, string word){ // TC: O(l)
+TrieNode* insertWord(TrieNode* root, string word){ // TC: O(l)
     if (root==nullptr){
         root = new TrieNode();
     }
@@ -48,6 +48,20 @@ TrieNode* insertNode(TrieNode* root, string word){ // TC: O(l)
     }
     curr->isEnd = true;
     return root;
+}
+
+bool searchWord(TrieNode* root, string word){ // TC: O(l)
+    // only search -> will assume that the trie is made already 
+    if (root==nullptr) return false;
+    TrieNode* curr = root;
+    for (char c : word) {
+        if (curr->mp.find(c)==curr->mp.end()) {
+            // make the node. but we already have the trie as assumed. or return false
+            return false;
+        }
+        curr = curr->mp[c];
+    }
+    return curr->isEnd;
 }
 
 void solve() {
