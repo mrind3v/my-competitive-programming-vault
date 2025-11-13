@@ -45,7 +45,7 @@ const bool multipleTestCases = true;
 struct Node {
     int val;
     Node *left, *right; // left and right are pointers to another Node struct
-}
+};
 
 int cntNodes(Node *root){
     if (root == NULL) return 0; 
@@ -54,17 +54,17 @@ int cntNodes(Node *root){
     return leftCnt + rightCnt + 1;
 }
 
-bool isMirror(Node n1, Node n2) {
+bool isMirror(Node* n1, Node* n2) {
     // we did a pre-order traversal here. We failed fast! - checked if root nodes are equal or not first 
     // that saved us from lot of computation in case trees are not mirrors because root nodes are diff 
     // However, in post order traversal, we still need to do a lot of computation because root nodes will
     // be checked at last
     // base case 
-    if (n1 == NULL and n2 == NULL) return true;
-    if (n1 == NULL or n2 == NULL) return false;
+    if (n1 == nullptr && n2 == nullptr) return true;
+    if (n1 == nullptr && n2 == nullptr) return false;
     // recursive code 
-   if (n1.val != n2.val) return false;
-   return isMirror(n1.left, n2.right) and isMirror(n1.right, n2.left);
+   if (n1->val != n2->val) return false;
+   return isMirror(n1->left, n2->right) and isMirror(n1->right, n2->left);
 }
 
 
@@ -113,7 +113,7 @@ struct Data {
         this->diam = diam;
         this->height = height;
     }
-}
+};
 
 Data diameterOptimised(Node *root){
     // will return a class/struct containing both diameter and height

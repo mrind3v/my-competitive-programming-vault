@@ -64,6 +64,11 @@ bool searchWord(TrieNode* root, string word){ // TC: O(l)
     return curr->isEnd;
 }
 
+// return array of shortest prefix of every word in the array 
+vi shortestPrefix(TrieNode* root) {
+    
+}
+
 void solve() {
     
 }
